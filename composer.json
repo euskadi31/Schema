@@ -1,0 +1,36 @@
+{
+    "name": "euskadi31/Schema",
+    "type": "library",
+    "description": "SQL Schema manager",
+    "keywords": ["sql", "schema", "manager"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Axel Etcheverry",
+            "email": "axel@etcheverry.biz",
+            "homepage": "http://twitter.com/euskadi31"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.3",
+        "symfony/console": "~2.3",
+        "symfony/finder": "~2.3",
+        "symfony/process": "~2.3",
+        "symfony/yaml": "~2.3",
+        "doctrine/dbal": "~2.3"
+    },
+    "require-dev": {
+        "atoum/atoum": "dev-master"
+    },
+    "autoload": {
+        "psr-0": { 
+            "Schema": "src/"
+        }
+    },
+    "bin": [
+        "bin/schema"
+    ],
+    "config": {
+        "bin-dir": "bin/"
+    }
+}
