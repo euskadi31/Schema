@@ -16,7 +16,7 @@ namespace Schema\Type;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\StringType;
 
-class MediumTextType extends StringType
+class LongTextType extends StringType
 {
     /** @override */
     public function getName()
