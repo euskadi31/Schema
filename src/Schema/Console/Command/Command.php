@@ -32,6 +32,7 @@ class Command extends BaseCommand
         Type::addType('mediumint', '\Schema\Type\MediumIntType');
         Type::addType('tinytext', '\Schema\Type\TinyTextType');
         Type::addType('mediumtext', '\Schema\Type\MediumTextType');
+        Type::addType('longtext', '\Schema\Type\LongTextType');
 
         $connection = DriverManager::getConnection(
             $config['config'], 

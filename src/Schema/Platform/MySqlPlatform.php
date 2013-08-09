@@ -70,6 +70,11 @@ class MySqlPlatform extends BaseMySqlPlatform
         return 'MEDIUMTEXT' . $this->_getCommonTextTypeDeclarationSQL($field);
     }
 
+    public function getLongTextTypeDeclarationSQL(array $field)
+    {
+        return 'LONGTEXT' . $this->_getCommonTextTypeDeclarationSQL($field);
+    }
+
     public function getDefaultValueDeclarationSQL($field)
     {
         $default = empty($field['notnull']) ? ' DEFAULT NULL' : '';
