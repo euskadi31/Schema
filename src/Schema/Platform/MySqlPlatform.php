@@ -55,6 +55,11 @@ class MySqlPlatform extends BaseMySqlPlatform
         return 'TINYINT(1) UNSIGNED';
     }
 
+    public function getDoubleDeclarationSQL(array $field)
+    {
+        return 'DOUBLE' . $this->_getCommonDoubleTypeDeclarationSQL($field);
+    }
+
     public function getMediumIntTypeDeclarationSQL(array $field)
     {
         return 'MEDIUMINT' . $this->_getCommonIntegerTypeDeclarationSQL($field);
@@ -73,6 +78,21 @@ class MySqlPlatform extends BaseMySqlPlatform
     public function getLongTextTypeDeclarationSQL(array $field)
     {
         return 'LONGTEXT' . $this->_getCommonTextTypeDeclarationSQL($field);
+    }
+
+    public function _getCommonDoubleTypeDeclarationSQL(array $columnDef)
+    {
+        if (!isset($columnDef['precision'], $columnDef['scale'])) {
+            return '';
+        }
+
+
+        $columnDef['precision'] = (!isset($columnDef['precision']) || empty($columnDef['precision']))
+            ? 10 : $columnDef['precision'];
+        $columnDef['scale'] = ( ! isset($columnDef['scale']) || empty($columnDef['scale']))
+            ? 0 : $columnDef['scale'];
+
+        return '(' . $columnDef['precision'] . ', ' . $columnDef['scale'] . ')';
     }
 
     public function getDefaultValueDeclarationSQL($field)

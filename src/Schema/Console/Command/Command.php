@@ -33,6 +33,7 @@ class Command extends BaseCommand
         Type::addType('tinytext', '\Schema\Type\TinyTextType');
         Type::addType('mediumtext', '\Schema\Type\MediumTextType');
         Type::addType('longtext', '\Schema\Type\LongTextType');
+        Type::addType('double', '\Schema\Type\DoubleType');
 
         $connection = DriverManager::getConnection(
             $config['config'], 
