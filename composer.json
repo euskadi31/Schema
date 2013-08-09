@@ -1,5 +1,5 @@
 {
-    "name": "euskadi31/Schema",
+    "name": "euskadi31/schema",
     "type": "library",
     "description": "SQL Schema manager",
     "keywords": ["sql", "schema", "manager"],
