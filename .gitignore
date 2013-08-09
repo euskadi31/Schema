@@ -4,3 +4,4 @@ composer.phar
 vendor
 example
 schema.phar
+bin/atoum
