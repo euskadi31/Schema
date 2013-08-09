@@ -213,7 +213,7 @@ class Config extends ArrayObject
 
                     foreach ($index_columns as $i => $name) {
 
-                        if (in_array($name, $removeIndexes[$table->getName()])) {
+                        if (isset($removeIndexes[$table->getName()]) && in_array($name, $removeIndexes[$table->getName()])) {
                             unset($index_columns[$i]);
                         }
                     }
