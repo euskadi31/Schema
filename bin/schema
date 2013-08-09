@@ -13,7 +13,7 @@ if (PHP_SAPI !== 'cli') {
     echo 'Warning: Schema should be invoked via the CLI version of PHP, not the ' . PHP_SAPI . ' SAPI' . PHP_EOL;
 }
 
-require __DIR__ . '/../vendor/autoload.php';
+(@include_once __DIR__ . '/../vendor/autoload.php') || @include_once __DIR__ . '/../../../autoload.php';
 
 use Schema\Console\Application;
 
