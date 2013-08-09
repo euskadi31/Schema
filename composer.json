@@ -14,8 +14,6 @@
     "require": {
         "php": ">=5.3.3",
         "symfony/console": "~2.3",
-        "symfony/finder": "~2.3",
-        "symfony/process": "~2.3",
         "symfony/yaml": "~2.3",
         "doctrine/dbal": "~2.3"
     },
