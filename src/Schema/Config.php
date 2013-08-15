@@ -16,6 +16,8 @@ namespace Schema;
 use ArrayObject;
 use RuntimeException;
 use SplFileInfo;
+use DirectoryIterator;
+
 use Symfony\Component\Yaml\Yaml;
 
 use Doctrine\DBAL\Schema\Schema as DoctrineSchema;
@@ -34,10 +36,26 @@ class Config extends ArrayObject
     protected $file;
 
     /**
+     *
+     * @var string
+     */
+    protected $path;
+
+    /**
      * 
      * @var Doctrine\DBAL\Connection;
      */
     protected $connection;
+
+    /**
+     * 
+     * @var array
+     */
+    protected $extensions = array(
+        'json',
+        'yml',
+        'yaml'
+    );
 
     /**
      * 
@@ -54,15 +72,40 @@ class Config extends ArrayObject
             if (!$file->isReadable()) {
                 throw new RuntimeException(sprintf("Unable to parse \"%s\" as the file is not readable.", $file));
             }
+            
+            $schema = $this->_loadFile($file);
+            
+            $this->file = $file;
 
-            $content = file_get_contents($file);
-
-            if (empty($content)) {
-                throw new RuntimeException(sprintf("File %s is empty", $file));
+            if (isset($schema["schemas"]) && is_string($schema["schemas"])) {
+                $this->path = $schema["schemas"];
+                $schema["schemas"] = array();
             }
 
-            if ($file->getExtension() == "json") {
-                $schema = json_decode(
+            parent::__construct($this->_process($schema));
+        }
+    }
+
+    public function getPath()
+    {
+        if ($this->path[0] != '/') {
+            return $this->file->getPathInfo()->getRealPath() . "/" . $this->path;
+        }
+
+        return $this->path;
+    }
+
+    protected function _loadFile(SplFileInfo $file)
+    {
+        $content = file_get_contents($file->getPathname());
+
+        if (empty($content)) {
+            throw new RuntimeException(sprintf("File %s is empty", $file));
+        }
+
+        switch ($file->getExtension()) {
+            case 'json':
+                $data = json_decode(
                     $content, 
                     true
                 );
@@ -91,16 +134,34 @@ class Config extends ArrayObject
                     }
                 }
 
-            } elseif ($file->getExtension() == "yml") {
-                $schema = Yaml::parse($content);
-            } else {
+                return $data;
+                break;
+            case 'yml':
+            case 'yaml':
+                return Yaml::parse($content);
+                break;
+            default:
                 throw new RuntimeException("File format is not supported.");
-            }
-            
-            $this->file = $file;
-
-            parent::__construct($schema);
+                break;
         }
+    }
+
+    protected function _process(array $schema)
+    {
+        if (!empty($this->path)) {
+
+            if (!is_dir($this->getPath())) {
+                mkdir($this->getPath(), 0777, true);
+            }
+
+            foreach (new DirectoryIterator($this->getPath()) as $file) {
+                if ($file->isFile() && in_array($file->getExtension(), $this->extensions)) {
+                    $schema["schemas"][] = $this->_loadFile($file);
+                }
+            }
+        }
+
+        return $schema;
     }
 
     /**
@@ -238,10 +299,67 @@ class Config extends ArrayObject
         $this->exchangeArray($data);
     }
 
+    protected function _save($path, $name, $format, array $data)
+    {
+        switch ($format) {
+            case 'sql':
+                $schema = $this->connection->getSchemaManager($this->connection)->createSchema();
+                $sqls = $schema->toSql($this->connection->getDatabasePlatform());
+                $content = implode(';' . PHP_EOL . PHP_EOL, $sqls) . ';' . PHP_EOL;
+                $ext = 'sql';
+                break;
+            case 'json':
+                $content = json_encode($data, JSON_PRETTY_PRINT);
+                $ext = 'json';
+                break;
+            case 'yaml':
+            case 'yml':
+                $content = Yaml::dump($data, 6);
+                $ext = 'yml';
+                break;
+            default:
+                throw new RuntimeException(sprintf("Format %s unsupported.", $format));
+        }
+
+        return (bool)file_put_contents(
+            $path . '/' . $name . '.' . $ext, 
+            $content
+        );
+    }
+
     public function save($format)
     {
         $name = $this->file->getBasename('.' . $this->file->getExtension());
         $path = $this->file->getPathInfo()->getRealPath();
+
+        if (!empty($this->path) && in_array($format, $this->extensions)) {
+            $schemas = $this->getArrayCopy();
+
+            foreach ($schemas["schemas"] as $schema) {
+                $this->_save(
+                    $this->getPath(), 
+                    $schema["name"],
+                    $format, 
+                    $schema
+                );
+            }
+
+            $schemas["schemas"] = $this->path;
+            
+            return $this->_save(
+                $this->file->getPathInfo()->getRealPath(),
+                $this->file->getBasename('.' . $this->file->getExtension()),
+                $format,
+                $schemas
+            );
+        } else {
+            return $this->_save(
+                $this->file->getPathInfo()->getRealPath(),
+                $this->file->getBasename('.' . $this->file->getExtension()),
+                $format,
+                $this->getArrayCopy()
+            );
+        }
 
         switch ($format) {
             case 'sql':
