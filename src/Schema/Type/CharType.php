@@ -26,6 +26,7 @@ class CharType extends StringType
 
     public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform)
     {
-        return $platform->getVarcharTypeDeclarationSQLSnippet($fieldDeclaration, true);
+        $fieldDeclaration['fixed'] = true;
+        return $platform->getVarcharTypeDeclarationSQL($fieldDeclaration);
     }
 }
