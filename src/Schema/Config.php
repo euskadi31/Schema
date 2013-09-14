@@ -111,9 +111,8 @@ class Config extends ArrayObject
                 );
 
                 if (version_compare(PHP_VERSION, '5.5.0', '>=')) {
-                    $error = json_last_error_msg();
-                    if (!empty($error)) {
-                        throw new RuntimeException($error);
+                     if (json_last_error() !== JSON_ERROR_NONE) {
+                        throw new RuntimeException(json_last_error_msg());
                     }
                 } else {
                     switch (json_last_error()) {
