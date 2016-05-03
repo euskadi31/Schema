@@ -24,13 +24,13 @@ use Doctrine\DBAL\Schema\Schema as DoctrineSchema;
 use Doctrine\DBAL\Connection;
 
 /**
- * 
+ *
  * @author Axel Etcheverry <axel@etcheverry.biz>
  */
 class Config extends ArrayObject
 {
     /**
-     * 
+     *
      * @var SplFileInfo
      */
     protected $file;
@@ -42,13 +42,13 @@ class Config extends ArrayObject
     protected $path;
 
     /**
-     * 
+     *
      * @var Doctrine\DBAL\Connection;
      */
     protected $connection;
 
     /**
-     * 
+     *
      * @var array
      */
     protected $extensions = array(
@@ -58,7 +58,7 @@ class Config extends ArrayObject
     );
 
     /**
-     * 
+     *
      * @param SplFileInfo $file
      * @throws RuntimeException
      */
@@ -72,9 +72,9 @@ class Config extends ArrayObject
             if (!$file->isReadable()) {
                 throw new RuntimeException(sprintf("Unable to parse \"%s\" as the file is not readable.", $file));
             }
-            
+
             $schema = $this->_loadFile($file);
-            
+
             $this->file = $file;
 
             if (isset($schema["schemas"]) && is_string($schema["schemas"])) {
@@ -106,7 +106,7 @@ class Config extends ArrayObject
         switch ($file->getExtension()) {
             case 'json':
                 $data = json_decode(
-                    $content, 
+                    $content,
                     true
                 );
 
@@ -164,7 +164,7 @@ class Config extends ArrayObject
     }
 
     /**
-     * 
+     *
      * @param Connection $connection
      * @return  Schema\Config
      */
@@ -252,11 +252,14 @@ class Config extends ArrayObject
                 $tableDef["columns"][$column->getName()] = $columnDef;
             }
 
+            $primaryKey = $table->getPrimaryKey();
 
-            $primary = $table->getPrimaryKey()->getColumns();
+            if (!empty($primaryKey)) {
+                $primary = $primaryKey->getColumns();
 
-            if (!empty($primary)) {
-                $tableDef["primary"] = (array)$primary;
+                if (!empty($primary)) {
+                    $tableDef["primary"] = (array)$primary;
+                }
             }
 
             $indexes = $table->getIndexes();
@@ -268,7 +271,7 @@ class Config extends ArrayObject
                 if ($index->isUnique() && !$index->isPrimary()) {
                     $tableDef["unique"][] = $index->getColumns();
                 } elseif (!$index->isUnique() && !$index->isPrimary()) {
-                    
+
                     $index_columns = $index->getColumns();
 
                     foreach ($index_columns as $i => $name) {
@@ -321,7 +324,7 @@ class Config extends ArrayObject
         }
 
         return (bool)file_put_contents(
-            $path . '/' . $name . '.' . $ext, 
+            $path . '/' . $name . '.' . $ext,
             $content
         );
     }
@@ -336,15 +339,15 @@ class Config extends ArrayObject
 
             foreach ($schemas["schemas"] as $schema) {
                 $this->_save(
-                    $this->getPath(), 
+                    $this->getPath(),
                     $schema["name"],
-                    $format, 
+                    $format,
                     $schema
                 );
             }
 
             $schemas["schemas"] = $this->path;
-            
+
             return $this->_save(
                 $this->file->getPathInfo()->getRealPath(),
                 $this->file->getBasename('.' . $this->file->getExtension()),
@@ -381,13 +384,13 @@ class Config extends ArrayObject
         }
 
         return (bool)file_put_contents(
-            $path . '/' . $name . '.' . $ext, 
+            $path . '/' . $name . '.' . $ext,
             $content
         );
     }
 
     /**
-     * 
+     *
      * @return Doctrine\DBAL\Schema\Schema
      */
     public function getSchema()
@@ -395,8 +398,8 @@ class Config extends ArrayObject
         $references = array();
 
         $schema = new DoctrineSchema(
-            array(), 
-            array(), 
+            array(),
+            array(),
             $this->connection->getSchemaManager()->createSchemaConfig()
         );
 
@@ -413,7 +416,7 @@ class Config extends ArrayObject
                     if (!isset($references[$table["name"]])) {
                         $references[$table["name"]] = array();
                     }
-                    
+
                     $references[$table["name"]][$column_name] = $options["reference"];
 
                     unset($options["reference"]);
@@ -464,7 +467,7 @@ class Config extends ArrayObject
 
                 if ($options["table"] === $table_name) {
                     $tableDef->addForeignKeyConstraint(
-                        $tableDef, 
+                        $tableDef,
                         (array)$column_name,
                         (array)$options["column"],
                         $extra
@@ -478,7 +481,7 @@ class Config extends ArrayObject
                     );
                 }
             }
-            
+
         }
 
         return $schema;

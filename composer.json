@@ -23,7 +23,7 @@
         "symfony/finder": "~2.3"
     },
     "autoload": {
-        "psr-0": { 
+        "psr-0": {
             "Schema": "src/"
         }
     },
