@@ -25,6 +25,10 @@ class TinyintType extends SmallIntType
 
     public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform)
     {
-        return $platform->getTinyIntTypeDeclarationSQL($fieldDeclaration);
+        if(method_exists($platform,'getTinyIntTypeDeclarationSQL')) {
+            return $platform->getTinyIntTypeDeclarationSQL($fieldDeclaration);
+        } else {
+            return $platform->getSmallIntTypeDeclarationSQL($fieldDeclaration);
+        }
     }
 }
