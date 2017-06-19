@@ -51,4 +51,9 @@ class MySQL57Platform extends SchemaMySqlPlaforme
     {
         return 'Doctrine\DBAL\Platforms\Keywords\MySQL57Keywords';
     }
+
+    public function getTinyIntTypeDeclarationSQL(array $field)
+    {
+        return 'TINYINT' . $this->_getCommonIntegerTypeDeclarationSQL($field);
+    }
 }
