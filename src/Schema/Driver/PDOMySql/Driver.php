@@ -21,4 +21,22 @@ class Driver extends BaseDriver
     {
         return new \Schema\Platform\MySqlPlatform();
     }
+
+    public function createDatabasePlatformForVersion($version)
+    {
+        if (false !== stripos($version, 'mariadb')) {
+            return $this->getDatabasePlatform();
+        }
+
+        $majorVersion = $versionParts['major'];
+        $minorVersion = isset($versionParts['minor']) ? $versionParts['minor'] : 0;
+        $patchVersion = isset($versionParts['patch']) ? $versionParts['patch'] : 0;
+        $version      = $majorVersion . '.' . $minorVersion . '.' . $patchVersion;
+
+        if (version_compare($version, '5.7', '>=')) {
+            return new \Schema\Platform\MySQL57Platform();
+        }
+
+        return $this->getDatabasePlatform();
+    }
 }
