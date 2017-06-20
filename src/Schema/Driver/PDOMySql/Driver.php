@@ -14,6 +14,7 @@
 namespace Schema\Driver\PDOMySql;
 
 use Doctrine\DBAL\Driver\PDOMySql\Driver as BaseDriver;
+use Doctrine\DBAL\DBALException;
 
 class Driver extends BaseDriver
 {
@@ -24,6 +25,13 @@ class Driver extends BaseDriver
 
     public function createDatabasePlatformForVersion($version)
     {
+        if ( ! preg_match('/^(?P<major>\d+)(?:\.(?P<minor>\d+)(?:\.(?P<patch>\d+))?)?/', $version, $versionParts)) {
+            throw DBALException::invalidPlatformVersionSpecified(
+                $version,
+                '<major_version>.<minor_version>.<patch_version>'
+            );
+        }
+
         if (false !== stripos($version, 'mariadb')) {
             return $this->getDatabasePlatform();
         }
