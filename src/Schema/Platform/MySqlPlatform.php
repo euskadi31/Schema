@@ -103,7 +103,7 @@ class MySqlPlatform extends BaseMySqlPlatform
 
             if (isset($field['type'])) {
                 //var_dump((string)$field['type']);
-                if (in_array((string)$field['type'], array("Integer", "BigInteger", "SmallInteger", "Tinyint"))) {
+                if (in_array((string)$field['type'], array("Integer", "BigInteger", "SmallInteger", "Tinyint", "Double","BigInt", "SmallInt"))) {
                     $default = " DEFAULT '" . $field['default'] . "'";
                 } else if ((string)$field['type'] == 'DateTime' && $field['default'] == $this->getCurrentTimestampSQL()) {
                     $default = " DEFAULT " . $this->getCurrentTimestampSQL();
